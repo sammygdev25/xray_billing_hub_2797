@@ -1,0 +1,192 @@
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { z } from 'zod';
+import { User, Patient, Exam, Invoice, UserSchema, PatientSchema, ExamSchema, InvoiceSchema, PaginatedResponseSchema } from './types';
+
+const API_BASE_URL = '/api';
+
+// Auto-detect K8s preview proxy and rewrite API URLs
+const isProxied = window.location.pathname.includes('/preview/proxy');
+const proxyBase = isProxied
+  ? window.location.pathname.replace(/\/preview\/proxy.*/, '/preview/proxy')
+  : '';
+
+const api: AxiosInstance = axios.create({
+  baseURL: proxyBase + API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// Auth interceptor
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// On a 401 with a stored refresh token (the Express track issues one), refresh once and retry.
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config as (InternalAxiosRequestConfig & { _retried?: boolean }) | undefined;
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (error.response?.status === 401 && refreshToken && original && !original._retried) {
+      original._retried = true;
+      try {
+        const res = await axios.post(proxyBase + API_BASE_URL + '/auth/refresh/', { refreshToken });
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('refreshToken', res.data.refreshToken);
+        return api(original);
+      } catch {
+        localStorage.removeItem('refreshToken');
+      }
+    }
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Response validation is advisory: a schema mismatch must never blank a page.
+const parseOr = <S extends z.ZodTypeAny>(schema: S, data: unknown): z.output<S> => {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    console.warn('[api] response did not match schema, using raw data:', result.error.issues.slice(0, 3));
+    return data as z.output<S>;
+  }
+  return result.data;
+};
+
+// Auth API
+export const login = (credentials: { username: string; password: string }) =>
+  api.post('/auth/login/', credentials);
+export const register = (data: { username: string; email: string; password: string }) =>
+  api.post('/auth/register/', data);
+export const logout = () => api.post('/auth/logout/');
+export const getProfile = () => api.get('/auth/profile/');
+
+// ── User API ──
+export const getUserList = async (params?: Record<string, unknown>): Promise<User[]> => {
+  const res = await api.get('/users/', params ? { params } : undefined);
+  const data = Array.isArray(res.data) ? res.data : (res.data?.results ?? res.data?.data ?? res.data?.items ?? res.data?.users ?? res.data?.users ?? []);
+  // The interface is the strict type: a field name the API does not send is a compile error, not an unknown.
+  return parseOr(z.array(UserSchema), data) as User[];
+};
+
+export const getUser = async (id: number | string | Record<string, unknown>): Promise<User> => {
+  // Pages sometimes call the detail getter with a filter object; route that to the list endpoint.
+  if (typeof id === 'object' && id !== null) return getUserList(id) as unknown as Promise<User>;
+  const res = await api.get(`/users/${id}/`);
+  return parseOr(UserSchema, res.data) as User;
+};
+
+export const createUser = async (data: Omit<User, 'id'>): Promise<User> => {
+  const res = await api.post('/users/', data);
+  return parseOr(UserSchema, res.data) as User;
+};
+
+export const updateUser = async (id: number, data: Partial<User>): Promise<User> => {
+  const res = await api.patch(`/users/${id}/`, data);
+  return parseOr(UserSchema, res.data) as User;
+};
+
+export const deleteUser = async (id: number) => {
+  await api.delete(`/users/${id}/`);
+};
+
+// ── Patient API ──
+export const getPatientList = async (params?: Record<string, unknown>): Promise<Patient[]> => {
+  const res = await api.get('/patients/', params ? { params } : undefined);
+  const data = Array.isArray(res.data) ? res.data : (res.data?.results ?? res.data?.data ?? res.data?.items ?? res.data?.patients ?? res.data?.patients ?? []);
+  // The interface is the strict type: a field name the API does not send is a compile error, not an unknown.
+  return parseOr(z.array(PatientSchema), data) as Patient[];
+};
+
+export const getPatient = async (id: number | string | Record<string, unknown>): Promise<Patient> => {
+  // Pages sometimes call the detail getter with a filter object; route that to the list endpoint.
+  if (typeof id === 'object' && id !== null) return getPatientList(id) as unknown as Promise<Patient>;
+  const res = await api.get(`/patients/${id}/`);
+  return parseOr(PatientSchema, res.data) as Patient;
+};
+
+export const createPatient = async (data: Omit<Patient, 'id'>): Promise<Patient> => {
+  const res = await api.post('/patients/', data);
+  return parseOr(PatientSchema, res.data) as Patient;
+};
+
+export const updatePatient = async (id: number, data: Partial<Patient>): Promise<Patient> => {
+  const res = await api.patch(`/patients/${id}/`, data);
+  return parseOr(PatientSchema, res.data) as Patient;
+};
+
+export const deletePatient = async (id: number) => {
+  await api.delete(`/patients/${id}/`);
+};
+
+// ── Exam API ──
+export const getExamList = async (params?: Record<string, unknown>): Promise<Exam[]> => {
+  const res = await api.get('/exams/', params ? { params } : undefined);
+  const data = Array.isArray(res.data) ? res.data : (res.data?.results ?? res.data?.data ?? res.data?.items ?? res.data?.exams ?? res.data?.exams ?? []);
+  // The interface is the strict type: a field name the API does not send is a compile error, not an unknown.
+  return parseOr(z.array(ExamSchema), data) as Exam[];
+};
+
+export const getExam = async (id: number | string | Record<string, unknown>): Promise<Exam> => {
+  // Pages sometimes call the detail getter with a filter object; route that to the list endpoint.
+  if (typeof id === 'object' && id !== null) return getExamList(id) as unknown as Promise<Exam>;
+  const res = await api.get(`/exams/${id}/`);
+  return parseOr(ExamSchema, res.data) as Exam;
+};
+
+export const createExam = async (data: Omit<Exam, 'id'>): Promise<Exam> => {
+  const res = await api.post('/exams/', data);
+  return parseOr(ExamSchema, res.data) as Exam;
+};
+
+export const updateExam = async (id: number, data: Partial<Exam>): Promise<Exam> => {
+  const res = await api.patch(`/exams/${id}/`, data);
+  return parseOr(ExamSchema, res.data) as Exam;
+};
+
+export const deleteExam = async (id: number) => {
+  await api.delete(`/exams/${id}/`);
+};
+
+// ── Invoice API ──
+export const getInvoiceList = async (params?: Record<string, unknown>): Promise<Invoice[]> => {
+  const res = await api.get('/invoices/', params ? { params } : undefined);
+  const data = Array.isArray(res.data) ? res.data : (res.data?.results ?? res.data?.data ?? res.data?.items ?? res.data?.invoices ?? res.data?.invoices ?? []);
+  // The interface is the strict type: a field name the API does not send is a compile error, not an unknown.
+  return parseOr(z.array(InvoiceSchema), data) as Invoice[];
+};
+
+export const getInvoice = async (id: number | string | Record<string, unknown>): Promise<Invoice> => {
+  // Pages sometimes call the detail getter with a filter object; route that to the list endpoint.
+  if (typeof id === 'object' && id !== null) return getInvoiceList(id) as unknown as Promise<Invoice>;
+  const res = await api.get(`/invoices/${id}/`);
+  return parseOr(InvoiceSchema, res.data) as Invoice;
+};
+
+export const createInvoice = async (data: Omit<Invoice, 'id'>): Promise<Invoice> => {
+  const res = await api.post('/invoices/', data);
+  return parseOr(InvoiceSchema, res.data) as Invoice;
+};
+
+export const updateInvoice = async (id: number, data: Partial<Invoice>): Promise<Invoice> => {
+  const res = await api.patch(`/invoices/${id}/`, data);
+  return parseOr(InvoiceSchema, res.data) as Invoice;
+};
+
+export const deleteInvoice = async (id: number) => {
+  await api.delete(`/invoices/${id}/`);
+};
+
+
+// Auth aliases — domain agents use varied naming conventions
+export const loginUser = (email: string, password: string) => api.post('/auth/login/', { username: email, password });
+export const registerUser = (userData: any) => api.post('/auth/register/', userData);
+export const getCurrentUser = getProfile;
+export const updateUserProfile = (data: Partial<any>) => api.patch('/auth/profile/', data);
+
+export default api;
