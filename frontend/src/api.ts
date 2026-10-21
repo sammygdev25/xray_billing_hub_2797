@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { z } from 'zod';
-import { User, Patient, Exam, Invoice, UserSchema, PatientSchema, ExamSchema, InvoiceSchema, PaginatedResponseSchema } from './types';
+import { Patient, Exam, Invoice, PatientSchema, ExamSchema, InvoiceSchema, PaginatedResponseSchema } from './types';
 
 const API_BASE_URL = '/api';
 
@@ -65,35 +65,6 @@ export const register = (data: { username: string; email: string; password: stri
   api.post('/auth/register/', data);
 export const logout = () => api.post('/auth/logout/');
 export const getProfile = () => api.get('/auth/profile/');
-
-// ── User API ──
-export const getUserList = async (params?: Record<string, unknown>): Promise<User[]> => {
-  const res = await api.get('/users/', params ? { params } : undefined);
-  const data = Array.isArray(res.data) ? res.data : (res.data?.results ?? res.data?.data ?? res.data?.items ?? res.data?.users ?? res.data?.users ?? []);
-  // The interface is the strict type: a field name the API does not send is a compile error, not an unknown.
-  return parseOr(z.array(UserSchema), data) as User[];
-};
-
-export const getUser = async (id: number | string | Record<string, unknown>): Promise<User> => {
-  // Pages sometimes call the detail getter with a filter object; route that to the list endpoint.
-  if (typeof id === 'object' && id !== null) return getUserList(id) as unknown as Promise<User>;
-  const res = await api.get(`/users/${id}/`);
-  return parseOr(UserSchema, res.data) as User;
-};
-
-export const createUser = async (data: Omit<User, 'id'>): Promise<User> => {
-  const res = await api.post('/users/', data);
-  return parseOr(UserSchema, res.data) as User;
-};
-
-export const updateUser = async (id: number, data: Partial<User>): Promise<User> => {
-  const res = await api.patch(`/users/${id}/`, data);
-  return parseOr(UserSchema, res.data) as User;
-};
-
-export const deleteUser = async (id: number) => {
-  await api.delete(`/users/${id}/`);
-};
 
 // ── Patient API ──
 export const getPatientList = async (params?: Record<string, unknown>): Promise<Patient[]> => {

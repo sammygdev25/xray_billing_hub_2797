@@ -18,6 +18,11 @@ export interface User {
   googleId: string | null;
   createdAt: string;
   updatedAt: string;
+  patients?: Patient[];
+  scheduledBys?: Exam[];
+  radiologists?: Exam[];
+  users?: Invoice[];
+  createdBys?: Invoice[];
 }
 
 export const UserSchema = z.object({
@@ -41,6 +46,7 @@ export interface Patient {
   address: string;
   createdAt: string;
   updatedAt: string;
+  exams?: Exam[];
 }
 
 export const PatientSchema = z.object({
@@ -70,6 +76,7 @@ export interface Exam {
   price: number;
   createdAt: string;
   updatedAt: string;
+  invoices?: Invoice[];
 }
 
 export const ExamSchema = z.object({

@@ -13,6 +13,10 @@ import { requestLog } from './middleware/requestLog';
 import authRoutes from './routes/auth';
 import googleRoutes from './auth/google';
 import healthRoutes from './routes/health';
+import examsRoutes from './routes/exams';
+import invoicesRoutes from './routes/invoices';
+import patientsRoutes from './routes/patients';
+import paymentsRoutes from './routes/payments';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -36,7 +40,12 @@ app.use('/api/auth', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/google', googleRoutes);
 
-// DOMAIN_ROUTES_PLACEHOLDER
+app.use('/api/exams', examsRoutes);
+app.use('/api/invoices', invoicesRoutes);
+app.use('/api/patients', patientsRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api', healthRoutes);
+app.use('/api', paymentsRoutes);
 // DOMAIN_ROUTES_END
 
 if (config.serveFrontend) {
