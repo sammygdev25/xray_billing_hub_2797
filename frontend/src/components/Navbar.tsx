@@ -8,6 +8,8 @@ const NAV_LINKS = [
   { path: '/staff/patients', label: 'Patients', auth: true },
   { path: '/staff/exams', label: 'Exams', auth: true },
   { path: '/invoices', label: 'Invoices', auth: true },
+  { path: '/payment/success', label: 'Payment Success' },
+  { path: '/payment/cancel', label: 'Payment Cancel' },
 ];
 
 export default function Navbar() {

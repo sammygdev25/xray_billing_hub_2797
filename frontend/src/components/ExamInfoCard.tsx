@@ -45,7 +45,7 @@ export function ExamInfoCard({ exam }: ExamInfoCardProps) {
           {exam.patient?.user?.fullName && (
             <CardMeta>
               <Icon name="user" size={16} />
-              {exam.patient.user.fullName}
+              {exam.patient.user?.fullName}
             </CardMeta>
           )}
 

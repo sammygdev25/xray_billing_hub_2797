@@ -1,5 +1,4 @@
 import { Grid, Stat } from '../components/ui';
-import { Icon } from '../components/icons';
 
 interface StaffDashboardStatsProps {
   totalPatients: number;
@@ -19,23 +18,23 @@ export default function StaffDashboardStats({
       <div className="ds-container">
         <Grid size="sm" cols={4}>
           <Stat
-            icon={<Icon name="users" />}
+            icon="users"
             value={String(totalPatients)}
             label="Registered Patients"
           />
           <Stat
-            icon={<Icon name="calendar" />}
+            icon="calendar"
             value={String(scheduledExams)}
             label="Scheduled Exams"
           />
           <Stat
-            icon={<Icon name="credit-card" />}
+            icon="credit-card"
             value={String(pendingInvoices)}
             label="Pending Invoices"
           />
           <Stat
-            icon={<Icon name="dollar" />}
-            value={`$${revenueCollected.toFixed(2)}`}
+            icon="dollar"
+            value={`$${Number(revenueCollected || 0).toFixed(2)}`}
             label="Revenue Collected"
           />
         </Grid>

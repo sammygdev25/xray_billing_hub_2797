@@ -1,6 +1,8 @@
-import type { Invoice } from '../types';
 import { Badge, Price, EmptyState } from '../components/ui';
-import type { BadgeTone } from '../components/ui';
+import type { Invoice } from '../types';
+import type { ComponentProps } from 'react';
+
+type BadgeTone = ComponentProps<typeof Badge>['tone'];
 
 interface InvoiceTableProps {
   invoices: Invoice[];

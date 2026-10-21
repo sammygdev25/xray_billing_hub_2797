@@ -47,7 +47,7 @@ router.get('/', authMiddleware, requireStaff, async (req: AuthRequest, res: Resp
 // GET /api/patients/me (authenticated) - patient's own profile
 router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const patient = await prisma.patient.findUnique({
+    const patient = await prisma.patient.findFirst({
       where: { userId: req.userId },
       include: { user: { select: patientUserSelect } },
     });
@@ -68,19 +68,19 @@ router.put('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
     return res.status(400).json({ error: 'Invalid body', code: 'validation_error', issues: parsed.error.issues });
   }
   try {
-    const existing = await prisma.patient.findUnique({ where: { userId: req.userId } });
+    const existing = await prisma.patient.findFirst({ where: { userId: req.userId } });
     if (!existing) {
       return res.status(404).json({ error: 'Patient not found' });
     }
-    const data: { dateOfBirth?: Date | null; phone?: string; address?: string } = {};
-    if (parsed.data.dateOfBirth !== undefined) {
-      data.dateOfBirth = parsed.data.dateOfBirth ? new Date(parsed.data.dateOfBirth) : null;
+    const data: { dateOfBirth?: Date; phone?: string; address?: string } = {};
+    if (parsed.data.dateOfBirth) {
+      data.dateOfBirth = new Date(parsed.data.dateOfBirth);
     }
     if (parsed.data.phone !== undefined) data.phone = parsed.data.phone;
     if (parsed.data.address !== undefined) data.address = parsed.data.address;
 
     const patient = await prisma.patient.update({
-      where: { userId: req.userId },
+      where: { id: existing.id },
       data,
       include: { user: { select: patientUserSelect } },
     });
@@ -102,7 +102,7 @@ router.post('/', authMiddleware, requireStaff, async (req: AuthRequest, res: Res
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const existingProfile = await prisma.patient.findUnique({ where: { userId: parsed.data.userId } });
+    const existingProfile = await prisma.patient.findFirst({ where: { userId: parsed.data.userId } });
     if (existingProfile) {
       return res.status(400).json({ error: 'Patient profile already exists for this user' });
     }
@@ -110,7 +110,7 @@ router.post('/', authMiddleware, requireStaff, async (req: AuthRequest, res: Res
     const patient = await prisma.patient.create({
       data: {
         userId: parsed.data.userId,
-        dateOfBirth: parsed.data.dateOfBirth ? new Date(parsed.data.dateOfBirth) : null,
+        dateOfBirth: parsed.data.dateOfBirth ? new Date(parsed.data.dateOfBirth) : new Date(),
         phone: parsed.data.phone ?? '',
         address: parsed.data.address ?? '',
       },
@@ -159,9 +159,9 @@ router.put('/:id', authMiddleware, requireStaff, async (req: AuthRequest, res: R
     if (!existing) {
       return res.status(404).json({ error: 'Patient not found' });
     }
-    const data: { dateOfBirth?: Date | null; phone?: string; address?: string } = {};
-    if (parsed.data.dateOfBirth !== undefined) {
-      data.dateOfBirth = parsed.data.dateOfBirth ? new Date(parsed.data.dateOfBirth) : null;
+    const data: { dateOfBirth?: Date; phone?: string; address?: string } = {};
+    if (parsed.data.dateOfBirth) {
+      data.dateOfBirth = new Date(parsed.data.dateOfBirth);
     }
     if (parsed.data.phone !== undefined) data.phone = parsed.data.phone;
     if (parsed.data.address !== undefined) data.address = parsed.data.address;

@@ -4,7 +4,7 @@ import { getPatientList, createPatient } from '../api';
 import type { Patient } from '../types';
 import PatientsHeader from '../components/PatientsHeader';
 import PatientsContent from '../components/PatientsContent';
-import PatientForm from '../components/PatientForm';
+import PatientForm, { type PatientFormData } from '../components/PatientForm';
 import { Alert } from '../components/ui';
 
 export default function PatientsPage() {
@@ -32,17 +32,17 @@ export default function PatientsPage() {
     loadPatients();
   }, [loadPatients]);
 
-  const handleRowClick = (patient: Patient) => {
+  const handleRowClick = async (patient: Patient) => {
     navigate(`/staff/patients/${patient.id}`);
   };
 
-  const handleAddClick = () => {
+  const handleAddClick = async () => {
     setShowForm(true);
   };
 
-  const handleSubmit = async (data: Record<string, any>) => {
+  const handleSubmit = async (data: PatientFormData) => {
     try {
-      await createPatient(data);
+      await createPatient(data as unknown as Omit<Patient, 'id'>);
       setShowForm(false);
       await loadPatients();
     } catch (err) {

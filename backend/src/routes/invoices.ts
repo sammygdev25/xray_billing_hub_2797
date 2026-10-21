@@ -135,7 +135,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Exam not found' });
     }
 
-    const existingInvoice = await prisma.invoice.findUnique({ where: { examId: parsed.data.examId } });
+    const existingInvoice = await prisma.invoice.findFirst({ where: { examId: parsed.data.examId } });
     if (existingInvoice) {
       return res.status(400).json({ error: 'This exam already has an invoice' });
     }
@@ -147,6 +147,7 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         totalAmount: parsed.data.totalAmount,
         createdById: req.userId,
         status: 'pending',
+        stripePaymentIntentId: '',
       },
       include: {
         user: { select: safeUserSelect },

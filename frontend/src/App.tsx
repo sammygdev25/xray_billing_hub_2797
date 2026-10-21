@@ -35,6 +35,26 @@ function RequireAuth({ children }: RequireAuthProps) {
   return <>{children}</>;
 }
 
+function HomeRoute() {
+  const auth = useAuth() as { isAuthenticated?: boolean };
+  const authed = auth && typeof auth.isAuthenticated === 'boolean' ? auth.isAuthenticated : Boolean(localStorage.getItem('token'));
+  if (!authed) {
+    return (
+      <div className="container" style={{ textAlign: 'center', padding: '4rem 1.5rem' }}>
+        <h1 style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-md)' }}>Welcome to Xray Billing Hub 2797</h1>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)' }}>
+          Manage your X-ray exams, invoices, and payments all in one place.
+        </p>
+        <div className="btn-group" style={{ display: 'inline-flex', gap: 'var(--space-md)' }}>
+          <a href="/login" className="btn btn-primary">Sign In</a>
+          <a href="/register" className="btn btn-secondary">Sign Up</a>
+        </div>
+      </div>
+    );
+  }
+  return <ProfilePage />;
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -43,7 +63,7 @@ function App() {
           <Navbar />
           <main className="ds-page-main">
             <Routes>
-              <Route path="/" element={<ProfilePage />} />
+              <Route path="/" element={<HomeRoute />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/dashboard" element={<RequireAuth><PatientDashboardPage /></RequireAuth>} />
@@ -62,7 +82,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
-          <Footer brand="Xray Billing Hub 2797" columns={[{ title: 'Explore', links: [{ label: 'Profile', to: '/' }, { label: 'Profile', to: '/profile' }] }]} />
+          <Footer brand="Xray Billing Hub 2797" columns={[{ title: 'Explore', links: [{ label: 'Home', to: '/' }, { label: 'Profile', to: '/profile' }] }]} />
         </div>
       </ErrorBoundary>
     </AuthProvider>

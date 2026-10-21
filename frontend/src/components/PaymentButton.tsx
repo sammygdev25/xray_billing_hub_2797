@@ -38,7 +38,7 @@ export function PaymentButton({ invoiceId, amount }: PaymentButtonProps) {
         disabled={loading}
         style={{ width: '100%' }}
       >
-        {loading ? 'Redirecting to payment...' : `Pay $${amount.toFixed(2)}`}
+        {loading ? 'Redirecting to payment...' : `Pay $${Number(amount || 0).toFixed(2)}`}
       </button>
       {error && (
         <p className="ds-small" style={{ color: 'var(--color-danger)' }}>

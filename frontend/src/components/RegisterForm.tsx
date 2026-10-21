@@ -34,11 +34,17 @@ function RegisterForm({ onSuccess }: RegisterFormProps) {
 
     setSubmitting(true);
     try {
+      const trimmedEmail = email.trim();
+      const trimmedFullName = fullName.trim();
+      const [firstName, ...rest] = trimmedFullName.split(' ');
+      const lastName = rest.join(' ');
+
       await register({
-        email: email.trim(),
+        username: trimmedEmail,
+        email: trimmedEmail,
         password,
-        full_name: fullName.trim(),
-        role: 'patient',
+        first_name: firstName,
+        last_name: lastName,
       });
       onSuccess();
     } catch (err: any) {

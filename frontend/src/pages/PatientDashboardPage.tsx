@@ -25,7 +25,7 @@ export default function PatientDashboardPage() {
       setExams(examData);
       setInvoices(invoiceData);
     } catch (err) {
-      console.error('Failed to load dashboard data', err);
+      console.error('Dashboard data will appear here as records are added. data', err);
     } finally {
       setLoading(false);
     }

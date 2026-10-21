@@ -1,5 +1,4 @@
 import { Grid, Stat } from '../components/ui';
-import { Icon } from '../components/icons';
 import type { Exam, Invoice } from '../types';
 
 interface PatientDashboardStatsProps {
@@ -19,23 +18,23 @@ export default function PatientDashboardStats({ exams, invoices }: PatientDashbo
   return (
     <Grid size="sm" cols={4}>
       <Stat
-        icon={<Icon name="calendar" />}
+        icon="calendar"
         value={String(upcomingCount)}
         label="Upcoming X-ray exams"
       />
       <Stat
-        icon={<Icon name="check" />}
+        icon="check"
         value={String(completedCount)}
         label="Completed exams"
       />
       <Stat
-        icon={<Icon name="credit-card" />}
-        value={`$${pendingTotal.toFixed(2)}`}
+        icon="credit-card"
+        value={`$${Number(pendingTotal || 0).toFixed(2)}`}
         label={`Balance due (${pendingInvoices.length} invoice${pendingInvoices.length === 1 ? '' : 's'})`}
       />
       <Stat
-        icon={<Icon name="dollar" />}
-        value={`$${paidTotal.toFixed(2)}`}
+        icon="dollar"
+        value={`$${Number(paidTotal || 0).toFixed(2)}`}
         label="Total paid to date"
       />
     </Grid>

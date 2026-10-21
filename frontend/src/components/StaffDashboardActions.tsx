@@ -8,7 +8,7 @@ interface StaffDashboardActionsProps {
 export default function StaffDashboardActions({ onNewExam }: StaffDashboardActionsProps) {
   return (
     <Section title="Quick actions" tight>
-      <Cluster gap="sm" wrap>
+      <Cluster gap="sm">
         <Button variant="primary" to="/staff/patients">
           <Icon name="users" size={16} /> View patients
         </Button>

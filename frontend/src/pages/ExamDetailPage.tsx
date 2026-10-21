@@ -8,7 +8,7 @@ import { StudyResultForm } from '../components/StudyResultForm';
 import ExamDetailMedia from '../components/ExamDetailMedia';
 import ExamDetailFacts from '../components/ExamDetailFacts';
 import ExamDetailRelated from '../components/ExamDetailRelated';
-import { Alert, LoadingBlock, EmptyState } from '../components/ui';
+import { Alert, LoadingBlock, EmptyState, Button } from '../components/ui';
 
 export default function ExamDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -87,7 +87,7 @@ export default function ExamDetailPage() {
         icon="alert"
         title="Exam not found"
         text={error ?? 'This exam could not be found.'}
-        action={{ label: 'Back to exams', onClick: () => navigate('/staff/exams') }}
+        action={<Button onClick={() => navigate('/staff/exams')}>Back to exams</Button>}
       />
     );
   }

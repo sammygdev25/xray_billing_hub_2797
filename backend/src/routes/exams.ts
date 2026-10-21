@@ -74,7 +74,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
         where.patientId = parsedQuery.data.patientId;
       }
     } else {
-      const patient = await prisma.patient.findUnique({ where: { userId: requester.id } });
+      const patient = await prisma.patient.findFirst({ where: { userId: requester.id } });
       if (!patient) {
         return res.json([]);
       }
@@ -114,7 +114,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     if (!isStaffRole(requester.role)) {
-      const patient = await prisma.patient.findUnique({ where: { userId: requester.id } });
+      const patient = await prisma.patient.findFirst({ where: { userId: requester.id } });
       if (!patient || exam.patientId !== patient.id) {
         return res.status(403).json({ error: 'Forbidden' });
       }

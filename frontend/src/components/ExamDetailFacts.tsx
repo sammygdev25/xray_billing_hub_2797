@@ -65,7 +65,7 @@ export default function ExamDetailFacts({ exam }: ExamDetailFactsProps) {
           <span className="ds-label">
             <Icon name="dollar" size={14} /> Price
           </span>
-          <div className="ds-price">${price.toFixed(2)}</div>
+          <div className="ds-price">${Number(price || 0).toFixed(2)}</div>
         </div>
 
         <div className="ds-field">

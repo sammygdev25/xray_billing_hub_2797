@@ -49,7 +49,7 @@ function UpcomingExamsList({ exams }: UpcomingExamsListProps) {
               </CardMeta>
               {exam.patient?.user?.fullName && (
                 <CardMeta>
-                  <Icon name="user" size={14} /> {exam.patient.user.fullName}
+                  <Icon name="user" size={14} /> {exam.patient.user?.fullName}
                 </CardMeta>
               )}
             </Stack>

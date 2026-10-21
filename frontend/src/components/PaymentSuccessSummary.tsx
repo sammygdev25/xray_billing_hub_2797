@@ -27,12 +27,12 @@ export default function PaymentSuccessSummary({ invoice, exam, onViewInvoices }:
         <div className="ds-cluster" style={{ alignItems: 'center', gap: '0.75rem' }}>
           <Media
             src=""
-            alt={exam?.exam_type ?? 'X-ray exam'}
+            alt={exam?.examType ?? 'X-ray exam'}
             ratio="square"
             badge={invoice.status === 'paid' ? 'Paid' : undefined}
           />
           <div className="ds-stack" style={{ gap: '0.25rem' }}>
-            <strong>{exam?.exam_type ?? 'X-ray exam'}</strong>
+            <strong>{exam?.examType ?? 'X-ray exam'}</strong>
             <span className="ds-small ds-muted">Invoice #{invoice.id}</span>
           </div>
         </div>
@@ -41,7 +41,7 @@ export default function PaymentSuccessSummary({ invoice, exam, onViewInvoices }:
           <span className="ds-muted">
             <Icon name="dollar" size={16} /> Amount paid
           </span>
-          <Price value={invoice.total_amount} />
+          <Price value={invoice.totalAmount} />
         </div>
 
         <div className="ds-between">
@@ -51,12 +51,12 @@ export default function PaymentSuccessSummary({ invoice, exam, onViewInvoices }:
           <span>{invoice.status === 'paid' ? 'Paid' : invoice.status}</span>
         </div>
 
-        {invoice.paid_at && (
+        {invoice.paidAt && (
           <div className="ds-between">
             <span className="ds-muted">
               <Icon name="calendar" size={16} /> Paid on
             </span>
-            <span>{new Date(invoice.paid_at).toLocaleDateString()}</span>
+            <span>{new Date(invoice.paidAt).toLocaleDateString()}</span>
           </div>
         )}
       </CardBody>

@@ -1,4 +1,4 @@
-import { Patient } from '../types';
+import type { Patient } from '../types';
 import { Icon } from './icons';
 import { EmptyState } from './ui';
 
